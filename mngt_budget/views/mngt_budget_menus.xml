@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Actions -->
+    <record id="action_mngt_budget_period" model="ir.actions.act_window">
+        <field name="name">Consolidated Budget</field>
+        <field name="res_model">mngt.budget.period</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <record id="action_mngt_sbu" model="ir.actions.act_window">
+        <field name="name">SBUs &amp; Departments</field>
+        <field name="res_model">mngt.sbu</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- ✅ CRITICAL: Add 'parent="account.menu_root"' so it appears inside Accounting -->
+    <menuitem id="menu_mngt_budget_root"
+              name="Management Accounting"
+              parent="account_accountant.menu_accounting"
+              sequence="25"/>
+
+    <!-- Sub-menu Items under Management Accounting -->
+    <menuitem id="menu_mngt_budget_period"
+              name="Consolidated Budget"
+              parent="menu_mngt_budget_root"
+              action="action_mngt_budget_period"
+              sequence="10"/>
+
+    <menuitem id="menu_mngt_sbu"
+              name="SBUs"
+              parent="menu_mngt_budget_root"
+              action="action_mngt_sbu"
+              sequence="20"/>
+
+</odoo>

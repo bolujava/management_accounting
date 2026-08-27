@@ -1,0 +1,13 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_mngt_budget_period_acct,mngt.budget.period.acct,model_mngt_budget_period,account.group_account_invoice,1,1,1,1
+access_mngt_sbu_acct,mngt.sbu.acct,model_mngt_sbu,account.group_account_invoice,1,1,1,1
+access_mngt_sbu_soci_row_acct,mngt.sbu.soci.row.acct,model_mngt_sbu_soci_row,account.group_account_invoice,1,1,1,1
+access_mngt_sbu_expense_line_acct,mngt.sbu.expense.line.acct,model_mngt_sbu_expense_line,account.group_account_invoice,1,1,1,1
+access_mngt_client_projection_acct,mngt.client.projection.acct,model_mngt_client_projection,account.group_account_invoice,1,1,1,1
+access_mngt_bulk_input_wizard_acct,mngt.bulk.input.wizard.acct,model_mngt_bulk_input_wizard,account.group_account_invoice,1,1,1,1
+access_mngt_budget_period_mgr,mngt.budget.period.mgr,model_mngt_budget_period,account.group_account_manager,1,1,1,1
+access_mngt_sbu_mgr,mngt.sbu.mgr,model_mngt_sbu,account.group_account_manager,1,1,1,1
+access_mngt_sbu_soci_row_mgr,mngt.sbu.soci.row.mgr,model_mngt_sbu_soci_row,account.group_account_manager,1,1,1,1
+access_mngt_sbu_expense_line_mgr,mngt.sbu.expense.line.mgr,model_mngt_sbu_expense_line,account.group_account_manager,1,1,1,1
+access_mngt_client_projection_mgr,mngt.client.projection.mgr,model_mngt_client_projection,account.group_account_manager,1,1,1,1
+access_mngt_bulk_input_wizard_mgr,mngt.bulk.input.wizard.mgr,model_mngt_bulk_input_wizard,account.group_account_manager,1,1,1,1
