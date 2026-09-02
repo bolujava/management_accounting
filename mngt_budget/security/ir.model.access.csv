@@ -11,3 +11,9 @@ access_mngt_sbu_soci_row_mgr,mngt.sbu.soci.row.mgr,model_mngt_sbu_soci_row,accou
 access_mngt_sbu_expense_line_mgr,mngt.sbu.expense.line.mgr,model_mngt_sbu_expense_line,account.group_account_manager,1,1,1,1
 access_mngt_client_projection_mgr,mngt.client.projection.mgr,model_mngt_client_projection,account.group_account_manager,1,1,1,1
 access_mngt_bulk_input_wizard_mgr,mngt.bulk.input.wizard.mgr,model_mngt_bulk_input_wizard,account.group_account_manager,1,1,1,1
+access_mngt_sbu_summary_line_acct,mngt.sbu.summary.line.acct,model_mngt_sbu_summary_line,account.group_account_invoice,1,1,1,1
+access_mngt_sbu_summary_line_mgr,mngt.sbu.summary.line.mgr,model_mngt_sbu_summary_line,account.group_account_manager,1,1,1,1
+access_mngt_budget_audit_log_acct,mngt.budget.audit.log.acct,model_mngt_budget_audit_log,account.group_account_invoice,1,1,1,1
+access_mngt_budget_audit_log_mgr,mngt.budget.audit.log.mgr,model_mngt_budget_audit_log,account.group_account_manager,1,1,1,1
+access_mngt_budget_snapshot_acct,mngt.budget.snapshot.acct,model_mngt_budget_snapshot,account.group_account_invoice,1,1,1,1
+access_mngt_budget_snapshot_mgr,mngt.budget.snapshot.mgr,model_mngt_budget_snapshot,account.group_account_manager,1,1,1,1

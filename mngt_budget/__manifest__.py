@@ -3,7 +3,7 @@
     'version': '16.0.1.0.0',
     'category': 'Management',
     'summary': 'Fintrak Budget Management',
-    'depends': ['base', 'account'],
+    'depends': ['base', 'account', 'mail'],
     'data': [
         'security/ir.model.access.csv',
         'views/mngt_budget_menus.xml',

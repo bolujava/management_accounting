@@ -34,8 +34,6 @@ class MngtSbu(models.Model):
     _name = 'mngt.sbu'
     _description = 'Strategic Business Unit (DWBI)'
     _order = 'name'
-    _inherit = ['mail.thread', 'mail.activity.mixin']
-
 
     period_id = fields.Many2one('mngt.budget.period', string='Period', required=True,
                                 default=lambda self: self.env['mngt.budget.period'].search(
@@ -46,22 +44,10 @@ class MngtSbu(models.Model):
                                                      }).id)
 
     name = fields.Char(string='SBU Name', required=True, default='DWBI')
-    state = fields.Selection([
-        ('draft', 'Draft'),
-        ('submitted', 'Submitted'),
-        ('locked', 'Locked')
-    ], string='Status', default='draft', required=True)
 
     soci_row_ids = fields.One2many('mngt.sbu.soci.row', 'sbu_id', string='SOCI Rows')
 
     expense_line_ids = fields.One2many('mngt.sbu.expense.line', 'sbu_id', string='SBU Expense Lines')
-
-    # ✅ NEW: Summary Lines (Image 7)
-    summary_line_ids = fields.One2many('mngt.sbu.summary.line', 'sbu_id', string='Summary Lines')
-    q1_inflation_rate = fields.Float(string='Q1 Inflation Rate (%)')
-    q2_inflation_rate = fields.Float(string='Q2 Inflation Rate (%)')
-    q3_inflation_rate = fields.Float(string='Q3 Inflation Rate (%)')
-    q4_inflation_rate = fields.Float(string='Q4 Inflation Rate (%)')
 
     # ✅ ADDED: New One2many for AMC Clients
     onshore_amc_ids = fields.One2many('mngt.client.projection', 'sbu_id',
@@ -98,8 +84,6 @@ class MngtSbu(models.Model):
     annual_contribution = fields.Float(compute='_compute_annuals', store=True)
     annual_profit_before_tax = fields.Float(compute='_compute_annuals', store=True)
     annual_profit_after_tax = fields.Float(compute='_compute_annuals', store=True)
-    audit_log_ids = fields.One2many('mngt.budget.audit.log', 'sbu_id', string='Audit Logs')
-    snapshots = fields.One2many('mngt.budget.snapshot', 'sbu_id', string='Budget Snapshots')
 
     @api.depends('soci_row_ids')
     def _compute_annuals(self):
@@ -170,63 +154,6 @@ class MngtSbu(models.Model):
 
         for seq, name in standard_expenses:
             self.env['mngt.sbu.expense.line'].create({
-                'sbu_id': record.id,
-                'sequence': seq,
-                'row_name': name,
-            })
-
-        # ✅ NEW: Create Summary Lines (Image 7)
-        # ✅ NEW: Create Summary Lines (Image 7 - with Super Headings)
-        summary_rows = [
-            (5, 'Quarterly Inflation Rates >>'),
-
-            # ===== ON SHORE GROSS REVENUE =====
-            (10, 'ON SHORE GROSS REVENUE'),
-            (20, 'On going Implementation'),
-            (30, 'Annual Maintenance Charge'),
-            (40, 'Projects from existing Fintrak clients'),
-            (50, 'Projects from prospective clients'),
-            (60, 'Total On Shore Gross Revenue'),
-
-            # ===== OFF SHORE GROSS REVENUE =====
-            (70, 'OFF SHORE GROSS REVENUE'),
-            (80, 'On going Implementation'),
-            (90, 'Annual Maintenance Charge'),
-            (100, 'Projects from existing Fintrak clients'),
-            (110, 'Projects from prospective clients'),
-            (120, 'Total Off Shore Gross Revenue'),
-
-            # ===== TOTAL GROSS REVENUE =====
-            (130, 'TOTAL GROSS REVENUE'),
-
-            # ===== EXPENSES =====
-            (140, 'EXPENSES'),
-            (150, 'VAT (10%)'),
-            (160, 'Business Cost (10%)'),
-            (170, 'Implementation Cost/Expenses'),
-            (180, 'Personnel cost - Direct'),
-            (190, 'Local expenses'),
-            (200, 'Hotel and accommodation'),
-            (210, 'Foreign Travel expenses'),
-            (220, 'Local Travel expenses'),
-            (230, 'Data & Call to follow up on officer'),
-            (240, 'Software cost'),
-            (250, 'Training/LICENSE'),
-            (260, 'Laptops and Computer items'),
-            (270, 'Server'),
-            (280, 'Personnel cost - SHARED'),
-            (290, 'Other Shared Cost to be calculated by Finance'),
-            (300, 'Others'),
-            (310, 'Total Expenses'),
-
-            # ===== PROFIT SUMMARY =====
-            (320, 'Profit Before Tax'),
-            (330, 'Tax'),
-            (340, 'Net Profit'),
-        ]
-
-        for seq, name in summary_rows:
-            self.env['mngt.sbu.summary.line'].create({
                 'sbu_id': record.id,
                 'sequence': seq,
                 'row_name': name,
@@ -354,75 +281,6 @@ class MngtSbu(models.Model):
             pat = {m: pbt[m] - tax[m] for m in months}
             set_vals('profit_after_tax', pat)
 
-            # ✅ NEW: Populate Summary Lines (Image 7)
-            summary_map = {line.row_name: line for line in sbu.summary_line_ids}
-
-            def get_sum(records):
-                vals = {m: 0.0 for m in months}
-                for r in records:
-                    for m in months:
-                        vals[m] += (getattr(r, m) or 0.0)
-                return vals
-
-            # On-Shore
-            onshore_impl = sbu.onshore_impl_ids
-            onshore_amc = sbu.onshore_amc_ids
-            onshore_existing = sbu.onshore_existing_ids
-            onshore_prosp = sbu.onshore_prospective_ids
-            onshore_all = onshore_impl + onshore_amc + onshore_existing + onshore_prosp
-
-            # Off-Shore
-            offshore_impl = sbu.offshore_impl_ids
-            offshore_amc = sbu.offshore_amc_ids
-            offshore_existing = sbu.offshore_existing_ids
-            offshore_prosp = sbu.offshore_prospective_ids
-            offshore_all = offshore_impl + offshore_amc + offshore_existing + offshore_prosp
-
-            if 'On going Implementation' in summary_map:
-                summary_map['On going Implementation'].write(get_sum(onshore_impl))
-            if 'Annual Maintenance Charge' in summary_map:
-                summary_map['Annual Maintenance Charge'].write(get_sum(onshore_amc))
-            if 'Projects from existing Fintrak clients' in summary_map:
-                summary_map['Projects from existing Fintrak clients'].write(get_sum(onshore_existing))
-            if 'Projects from prospective clients' in summary_map:
-                summary_map['Projects from prospective clients'].write(get_sum(onshore_prosp))
-            if 'Total On Shore Gross Revenue' in summary_map:
-                summary_map['Total On Shore Gross Revenue'].write(get_sum(onshore_all))
-
-            if 'On going Implementation' in summary_map:
-                summary_map['On going Implementation'].write(get_sum(offshore_impl))
-            if 'Annual Maintenance Charge' in summary_map:
-                summary_map['Annual Maintenance Charge'].write(get_sum(offshore_amc))
-            if 'Projects from existing Fintrak clients' in summary_map:
-                summary_map['Projects from existing Fintrak clients'].write(get_sum(offshore_existing))
-            if 'Projects from prospective clients' in summary_map:
-                summary_map['Projects from prospective clients'].write(get_sum(offshore_prosp))
-            if 'Total Off Shore Gross Revenue' in summary_map:
-                summary_map['Total Off Shore Gross Revenue'].write(get_sum(offshore_all))
-
-            if 'Total Gross Revenue' in summary_map:
-                onshore_total = get_sum(onshore_all)
-                offshore_total = get_sum(offshore_all)
-                summary_map['Total Gross Revenue'].write({m: onshore_total[m] + offshore_total[m] for m in months})
-
-            # Summary Expenses
-            if 'VAT (10%)' in summary_map:
-                summary_map['VAT (10%)'].write(get_vals('vat'))
-            if 'Business Cost (10%)' in summary_map:
-                summary_map['Business Cost (10%)'].write(get_vals('business_cost'))
-
-            for exp in sbu.expense_line_ids:
-                if exp.row_name in summary_map:
-                    summary_map[exp.row_name].write({m: (getattr(exp, m) or 0.0) for m in months})
-
-            # Summary Profit
-            if 'Profit Before Tax' in summary_map:
-                summary_map['Profit Before Tax'].write(get_vals('profit_before_tax'))
-            if 'Tax' in summary_map:
-                summary_map['Tax'].write(get_vals('tax_exp'))
-            if 'Net Profit' in summary_map:
-                summary_map['Net Profit'].write(get_vals('profit_after_tax'))
-
     def action_bulk_input(self):
         """Opens the ONE wizard that handles bulk template download and import."""
         return {
@@ -435,40 +293,6 @@ class MngtSbu(models.Model):
                 'default_sbu_id': self.id,
             }
         }
-
-    def action_submit(self):
-        self.state = 'submitted'
-        self.env['mngt.budget.audit.log'].create({
-            'sbu_id': self.id,
-            'action': 'Submitted Budget'
-        })
-
-    def action_lock(self):
-        self.state = 'locked'
-        self.env['mngt.budget.audit.log'].create({
-            'sbu_id': self.id,
-            'action': 'Locked Budget'
-        })
-
-    def action_unlock(self):
-        self.state = 'draft'
-        self.env['mngt.budget.audit.log'].create({
-            'sbu_id': self.id,
-            'action': 'Unlocked Budget'
-        })
-    def action_save_snapshot(self):
-        """Saves a complete snapshot of the current budget for audit purposes."""
-        net_rev = self.soci_row_ids.filtered(lambda r: r.row_type == 'net_revenue')
-        contribution = self.soci_row_ids.filtered(lambda r: r.row_type == 'contribution')
-        profit = self.soci_row_ids.filtered(lambda r: r.row_type == 'profit_after_tax')
-
-        self.env['mngt.budget.snapshot'].create({
-            'sbu_id': self.id,
-            'net_revenue_total': net_rev.grand_total,
-            'contribution_total': contribution.grand_total,
-            'net_profit_total': profit.grand_total,
-            'comment': 'Budget data edited and saved'
-        })
 
 
 class MngtSbuSociRow(models.Model):
@@ -681,6 +505,7 @@ class MngtBulkInputWizard(models.TransientModel):
         # 2. SHEET #2: SBU Client Projection Inputs
         sheet = workbook.add_worksheet('SBU Client Projection Inputs')
 
+        # ✅ UPDATED HEADERS (Full words)
         headers = [
             'Client Location (On-Shore or Off-Shore)',
             'Client Category (Ongoing Implementation, Existing Fintrak Clients, Prospective Fintrak Clients, Annual Maintenance Charge)',
@@ -841,69 +666,3 @@ class MngtBulkInputWizard(models.TransientModel):
             'type': 'ir.actions.client',
             'tag': 'reload',
         }
-
-
-class MngtSbuSummaryLine(models.Model):
-    _name = 'mngt.sbu.summary.line'
-    _description = 'Summary Lines (Image 7)'
-    _order = 'sequence'
-
-    sbu_id = fields.Many2one('mngt.sbu', string='SBU', ondelete='cascade')
-    sequence = fields.Integer(string='Seq', default=10)
-    row_name = fields.Char(string='Row Name', readonly=True)
-
-    m1 = fields.Float(string='Jan')
-    m2 = fields.Float(string='Feb')
-    m3 = fields.Float(string='Mar')
-    m4 = fields.Float(string='Apr')
-    m5 = fields.Float(string='May')
-    m6 = fields.Float(string='Jun')
-    m7 = fields.Float(string='Jul')
-    m8 = fields.Float(string='Aug')
-    m9 = fields.Float(string='Sep')
-    m10 = fields.Float(string='Oct')
-    m11 = fields.Float(string='Nov')
-    m12 = fields.Float(string='Dec')
-
-    q1 = fields.Float(compute='_compute_q', string='1st Q Total')
-    q2 = fields.Float(compute='_compute_q', string='2nd Q Total')
-    q3 = fields.Float(compute='_compute_q', string='3rd Q Total')
-    q4 = fields.Float(compute='_compute_q', string='4th Q Total')
-    annual_total = fields.Float(compute='_compute_q', string='Annual Total')
-
-    @api.depends('m1', 'm2', 'm3', 'm4', 'm5', 'm6', 'm7', 'm8', 'm9', 'm10', 'm11', 'm12')
-    def _compute_q(self):
-        for rec in self:
-            months = [rec.m1, rec.m2, rec.m3, rec.m4, rec.m5, rec.m6, rec.m7, rec.m8, rec.m9, rec.m10, rec.m11, rec.m12]
-            rec.q1 = sum(months[0:3])
-            rec.q2 = sum(months[3:6])
-            rec.q3 = sum(months[6:9])
-            rec.q4 = sum(months[9:12])
-            rec.annual_total = sum(months)
-
-
-class MngtBudgetAuditLog(models.Model):
-    _name = 'mngt.budget.audit.log'
-    _description = 'Budget Audit Trail'
-    _order = 'create_date desc'
-
-    sbu_id = fields.Many2one('mngt.sbu', string='SBU', ondelete='cascade')
-    user_id = fields.Many2one('res.users', string='Action By', default=lambda self: self.env.user)
-    action = fields.Char(string='Action')
-    date = fields.Datetime(string='Date', default=fields.Datetime.now)
-
-
-class MngtBudgetSnapshot(models.Model):
-    _name = 'mngt.budget.snapshot'
-    _description = 'Budget Value Snapshot (Audit)'
-    _order = 'create_date desc'
-
-    sbu_id = fields.Many2one('mngt.sbu', string='SBU', ondelete='cascade')
-    user_id = fields.Many2one('res.users', string='Saved By', default=lambda self: self.env.user)
-    create_date = fields.Datetime(string='Saved On', default=fields.Datetime.now)
-    comment = fields.Text(string='Reason / Comment')
-
-    # Financial Totals at time of save
-    net_revenue_total = fields.Float(string='Net Revenue Total')
-    contribution_total = fields.Float(string='Contribution Total')
-    net_profit_total = fields.Float(string='Net Profit Total')

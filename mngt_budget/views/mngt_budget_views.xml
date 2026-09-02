@@ -21,33 +21,44 @@
             </form>
         </field>
     </record>
-
-    <!-- Images 2-8: DWBI / SBU Input -->
     <record id="view_mngt_sbu_form" model="ir.ui.view">
         <field name="name">mngt.sbu.form</field>
         <field name="model">mngt.sbu</field>
         <field name="arch" type="xml">
             <form string="DWBI 2026">
+                <header>
+                    <field name="state" widget="badge" readonly="1"/>
+                    <button name="action_submit" string="Submit Budget" type="object" class="btn-primary" states="draft"/>
+                    <button name="action_lock" string="Lock Budget" type="object" class="btn-secondary" states="submitted"/>
+                    <button name="action_unlock" string="Unlock Budget" type="object" class="btn-secondary" states="locked"/>
+                    <button name="action_save_snapshot" string="Save Snapshot" type="object" class="btn-secondary" states="draft,submitted"/>
+                </header>
+
                 <sheet>
                     <group>
                         <field name="period_id"/>
                         <field name="name"/>
                     </group>
 
-                    <!-- SINGLE BUTTON FOR BULK INPUT -->
                     <div class="o_form_label">
-                        <button name="action_bulk_input" string="Bulk Input" type="object" class="btn-primary"/>
+                        <button name="action_bulk_input" string="Bulk Input" type="object" class="btn-primary" states="draft,submitted"/>
                     </div>
 
-                    <notebook>
+                    <notebook attrs="{'invisible': [('state', '=', 'locked')]}">
 
-                        <!-- IMAGE 8: Exact SOCI (No delete allowed) -->
                         <page string="SOCI">
-                            <field name="soci_row_ids" mode="tree"  create="false">
-                                <tree string="SOCI" editable="bottom">
+                            <field name="soci_row_ids" mode="tree" create="false">
+                                <tree string="SOCI" editable="bottom"
+                                      decoration-bf="row_type in ('net_revenue', 'contribution', 'profit_before_tax', 'profit_after_tax', 'net_profit')"
+                                      decoration-info="row_type in ('net_revenue', 'contribution')"
+                                      decoration-warning="row_type == 'profit_before_tax'"
+                                      decoration-success="row_type in ('profit_after_tax', 'net_profit')">
                                     <field name="sequence" widget="handle"/>
                                     <field name="row_name" string="SOCI Item"/>
+                                    <field name="row_type" invisible="1"/>
                                     <field name="row_type"/>
+
+                                    <!-- Full editable grid (Python enforces calculated rows) -->
                                     <field name="m1" string="January" sum="1"/>
                                     <field name="m2" string="February" sum="1"/>
                                     <field name="m3" string="March" sum="1"/>
@@ -60,6 +71,7 @@
                                     <field name="m10" string="October" sum="1"/>
                                     <field name="m11" string="November" sum="1"/>
                                     <field name="m12" string="December" sum="1"/>
+
                                     <field name="q1" readonly="1" string="1st Q Total" sum="1"/>
                                     <field name="q2" readonly="1" string="2nd Q Total" sum="1"/>
                                     <field name="q3" readonly="1" string="3rd Q Total" sum="1"/>
@@ -69,7 +81,7 @@
                             </field>
                         </page>
 
-                        <!-- IMAGE 6: OPERATING EXPENDITURE (No delete allowed) -->
+                        <!-- IMAGE 6: OPERATING EXPENDITURE -->
                         <page string="Operating Expenditure">
                             <h4><strong>OPERATING EXPENDITURE</strong></h4>
                             <field name="expense_line_ids" mode="tree" create="false" editable="bottom">
@@ -106,9 +118,8 @@
                                     <field name="proj_category" invisible="1"/>
                                     <field name="client_name" string="Client Name"/>
                                     <field name="product" string="Product"/>
-                                    <field name="amc" string="Annual Maintenance Charge"/>
-                                    <field name="total_amount" string="Total Amount"/>
                                     <field name="justification" string="Justification"/>
+                                    <field name="total_amount" string="Total Amount"/>
                                     <field name="m1" string="January" sum="1"/>
                                     <field name="m2" string="February" sum="1"/>
                                     <field name="m3" string="March" sum="1"/>
@@ -133,9 +144,8 @@
                                     <field name="proj_category" invisible="1"/>
                                     <field name="client_name" string="Client Name"/>
                                     <field name="product" string="Product"/>
-                                    <field name="amc" string="Annual Maintenance Charge"/>
-                                    <field name="total_amount" string="Total Amount"/>
                                     <field name="justification" string="Justification"/>
+                                    <field name="total_amount" string="Total Amount"/>
                                     <field name="m1" string="January" sum="1"/>
                                     <field name="m2" string="February" sum="1"/>
                                     <field name="m3" string="March" sum="1"/>
@@ -160,9 +170,8 @@
                                     <field name="proj_category" invisible="1"/>
                                     <field name="client_name" string="Client Name"/>
                                     <field name="product" string="Product"/>
-                                    <field name="amc" string="Annual Maintenance Charge"/>
-                                    <field name="total_amount" string="Total Amount"/>
                                     <field name="justification" string="Justification"/>
+                                    <field name="total_amount" string="Total Amount"/>
                                     <field name="m1" string="January" sum="1"/>
                                     <field name="m2" string="February" sum="1"/>
                                     <field name="m3" string="March" sum="1"/>
@@ -187,10 +196,10 @@
                                     <field name="proj_category" invisible="1"/>
                                     <field name="client_name" string="Client Name"/>
                                     <field name="product" string="Product"/>
+                                    <field name="justification" string="Justification"/>
                                     <field name="usd" string="Amount (USD)"/>
                                     <field name="exchange_rate" string="Exchange Rate"/>
                                     <field name="total_ngn" readonly="1" string="Total NGN"/>
-                                    <field name="justification" string="Justification"/>
                                     <field name="m1" string="January" sum="1"/>
                                     <field name="m2" string="February" sum="1"/>
                                     <field name="m3" string="March" sum="1"/>
@@ -214,10 +223,10 @@
                                     <field name="proj_category" invisible="1"/>
                                     <field name="client_name" string="Client Name"/>
                                     <field name="product" string="Product"/>
+                                    <field name="justification" string="Justification"/>
                                     <field name="usd" string="Amount (USD)"/>
                                     <field name="exchange_rate" string="Exchange Rate"/>
                                     <field name="total_ngn" readonly="1" string="Total NGN"/>
-                                    <field name="justification" string="Justification"/>
                                     <field name="m1" string="January" sum="1"/>
                                     <field name="m2" string="February" sum="1"/>
                                     <field name="m3" string="March" sum="1"/>
@@ -241,10 +250,10 @@
                                     <field name="proj_category" invisible="1"/>
                                     <field name="client_name" string="Client Name"/>
                                     <field name="product" string="Product"/>
+                                    <field name="justification" string="Justification"/>
                                     <field name="usd" string="Amount (USD)"/>
                                     <field name="exchange_rate" string="Exchange Rate"/>
                                     <field name="total_ngn" readonly="1" string="Total NGN"/>
-                                    <field name="justification" string="Justification"/>
                                     <field name="m1" string="January" sum="1"/>
                                     <field name="m2" string="February" sum="1"/>
                                     <field name="m3" string="March" sum="1"/>
@@ -261,22 +270,130 @@
                             </field>
                         </page>
 
-                        <!-- IMAGE 7: MoM Summary -->
-                        <page string="MoM Summary">
-                            <group>
-                                <field name="mom_net_revenue" string="Total Net Revenue"/>
-                                <field name="mom_contribution" string="Total Contribution"/>
-                                <field name="mom_net_profit" string="Total Net Profit"/>
-                            </group>
+                        <!-- NEW: AMC Tabs -->
+                        <page string="On-Shore: AMC">
+                            <h4><strong>ANNUAL MAINTENANCE CHARGE (AMC)</strong></h4>
+                            <field name="onshore_amc_ids" mode="tree" editable="bottom" context="{'default_location_type': 'onshore', 'default_proj_category': 'amc'}">
+                                <tree string="On-Shore AMC">
+                                    <field name="proj_category" invisible="1"/>
+                                    <field name="client_name" string="Client Name"/>
+                                    <field name="product" string="Product"/>
+                                    <field name="justification" string="Justification"/>
+                                    <field name="total_amount" string="Total Amount"/>
+                                    <field name="m1" string="January" sum="1"/>
+                                    <field name="m2" string="February" sum="1"/>
+                                    <field name="m3" string="March" sum="1"/>
+                                    <field name="m4" string="April" sum="1"/>
+                                    <field name="m5" string="May" sum="1"/>
+                                    <field name="m6" string="June" sum="1"/>
+                                    <field name="m7" string="July" sum="1"/>
+                                    <field name="m8" string="August" sum="1"/>
+                                    <field name="m9" string="September" sum="1"/>
+                                    <field name="m10" string="October" sum="1"/>
+                                    <field name="m11" string="November" sum="1"/>
+                                    <field name="m12" string="December" sum="1"/>
+                                </tree>
+                            </field>
                         </page>
 
+                        <page string="Off-Shore: AMC">
+                            <h4><strong>ANNUAL MAINTENANCE CHARGE (AMC)</strong></h4>
+                            <field name="offshore_amc_ids" mode="tree" editable="bottom" context="{'default_location_type': 'offshore', 'default_proj_category': 'amc'}">
+                                <tree string="Off-Shore AMC">
+                                    <field name="proj_category" invisible="1"/>
+                                    <field name="client_name" string="Client Name"/>
+                                    <field name="product" string="Product"/>
+                                    <field name="justification" string="Justification"/>
+                                    <field name="usd" string="Amount (USD)"/>
+                                    <field name="exchange_rate" string="Exchange Rate"/>
+                                    <field name="total_ngn" readonly="1" string="Total NGN"/>
+                                    <field name="m1" string="January" sum="1"/>
+                                    <field name="m2" string="February" sum="1"/>
+                                    <field name="m3" string="March" sum="1"/>
+                                    <field name="m4" string="April" sum="1"/>
+                                    <field name="m5" string="May" sum="1"/>
+                                    <field name="m6" string="June" sum="1"/>
+                                    <field name="m7" string="July" sum="1"/>
+                                    <field name="m8" string="August" sum="1"/>
+                                    <field name="m9" string="September" sum="1"/>
+                                    <field name="m10" string="October" sum="1"/>
+                                    <field name="m11" string="November" sum="1"/>
+                                    <field name="m12" string="December" sum="1"/>
+                                </tree>
+                            </field>
+                        </page>
+
+                        <!-- IMAGE 7: MoM Summary (Exact Grid with Super Headings & Colors) -->
+                        <page string="MoM Summary">
+                            <group string="Quarterly Inflation Rate">
+                                <field name="q1_inflation_rate" string="Q1 Inflation Rate (%)"/>
+                                <field name="q2_inflation_rate" string="Q2 Inflation Rate (%)"/>
+                                <field name="q3_inflation_rate" string="Q3 Inflation Rate (%)"/>
+                                <field name="q4_inflation_rate" string="Q4 Inflation Rate (%)"/>
+                            </group>
+                            <separator string=""/>
+
+                            <field name="summary_line_ids" mode="tree" create="false">
+                                <tree string="2026 Summary" editable="bottom"
+                                      decoration-info="row_name in ('ON SHORE GROSS REVENUE', 'OFF SHORE GROSS REVENUE', 'TOTAL GROSS REVENUE')"
+                                      decoration-success="row_name in ('Total On Shore Gross Revenue', 'Total Off Shore Gross Revenue', 'Total Gross Revenue')"
+                                      decoration-warning="row_name in ('EXPENSES', 'Total Expenses')"
+                                      decoration-danger="row_name in ('Profit Before Tax', 'Tax', 'Net Profit')"
+                                      decoration-bf="row_name in ('ON SHORE GROSS REVENUE', 'OFF SHORE GROSS REVENUE', 'TOTAL GROSS REVENUE', 'EXPENSES', 'Total On Shore Gross Revenue', 'Total Off Shore Gross Revenue', 'Total Gross Revenue', 'Total Expenses', 'Profit Before Tax', 'Tax', 'Net Profit')">
+
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="row_name" string="Row Name"/>
+                                    <field name="m1" string="Jan"/>
+                                    <field name="m2" string="Feb"/>
+                                    <field name="m3" string="Mar"/>
+                                    <field name="q1" readonly="1" string="1st Q"/>
+                                    <field name="m4" string="Apr"/>
+                                    <field name="m5" string="May"/>
+                                    <field name="m6" string="Jun"/>
+                                    <field name="q2" readonly="1" string="2nd Q"/>
+                                    <field name="m7" string="Jul"/>
+                                    <field name="m8" string="Aug"/>
+                                    <field name="m9" string="Sep"/>
+                                    <field name="q3" readonly="1" string="3rd Q"/>
+                                    <field name="m10" string="Oct"/>
+                                    <field name="m11" string="Nov"/>
+                                    <field name="m12" string="Dec"/>
+                                    <field name="q4" readonly="1" string="4th Q"/>
+                                    <field name="annual_total" readonly="1" string="Annual Total"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Audit Trail">
+                            <field name="audit_log_ids" readonly="1">
+                                <tree string="Audit Trail">
+                                    <field name="create_date" string="Date"/>
+                                    <field name="user_id" string="Action By"/>
+                                    <field name="action" string="Action"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Value Snapshots">
+                            <field name="snapshots" readonly="1">
+                                <tree string="Budget Snapshots">
+                                    <field name="create_date" string="Saved On"/>
+                                    <field name="user_id" string="Saved By"/>
+                                    <field name="net_revenue_total" string="Net Revenue"/>
+                                    <field name="contribution_total" string="Contribution"/>
+                                    <field name="net_profit_total" string="Net Profit"/>
+                                    <field name="comment" string="Comment"/>
+                                </tree>
+                            </field>
+                        </page>
                     </notebook>
                 </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                    <field name="activity_ids" widget="mail_activity"/>
+                </div>
             </form>
         </field>
     </record>
-
-    <!-- Wizard View for Bulk Input -->
     <record id="view_mngt_bulk_input_wizard_form" model="ir.ui.view">
         <field name="name">mngt.bulk.input.wizard.form</field>
         <field name="model">mngt.bulk.input.wizard</field>
@@ -309,5 +426,4 @@
             </tree>
         </field>
     </record>
-
 </odoo>
